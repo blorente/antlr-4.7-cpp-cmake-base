@@ -62,11 +62,13 @@ FIND_PACKAGE(Java COMPONENTS Runtime REQUIRED)
 
 ############ Download and Generate runtime #################
 set(ANTLR4CPP_EXTERNAL_ROOT ${CMAKE_BINARY_DIR}/externals/antlr4cpp)
+set(ANTLR4CPP_LOCAL_ROOT ${CMAKE_BINARY_DIR}/locals/antlr4cpp)
 
 # external repository
 # GIT_REPOSITORY     https://github.com/antlr/antlr4.git
 set(ANTLR4CPP_EXTERNAL_REPO "https://github.com/antlr/antlr4.git")
 set(ANTLR4CPP_EXTERNAL_TAG  "4.7")
+SET(ANTLR4CPP_LOCAL_REPO ${PROJECT_SOURCE_DIR}/thirdparty/antlr/antlr4-master.zip)
 
 if(NOT EXISTS "${ANTLR4CPP_JAR_LOCATION}")
   message(FATAL_ERROR "Unable to find antlr tool. ANTLR4CPP_JAR_LOCATION:${ANTLR4CPP_JAR_LOCATION}")
@@ -77,52 +79,6 @@ if (NOT ANTLR4CPP_GENERATED_SRC_DIR)
   set(ANTLR4CPP_GENERATED_SRC_DIR ${CMAKE_BINARY_DIR}/antlr4cpp_generated_src)
 endif()
 
-# !TODO! This should probably check with Cmake Find first?
-# set(ANTLR4CPP_JAR_LOCATION ${ANTLR4CPP_EXTERNAL_ROOT}/${ANTLR4CPP_JAR_NAME})
-#
-# !TODO! Ensure Antlr tool available - copy from internet
-#
-# # !TODO! this shold be calculated based on the tags
-# if (NOT ANTLR4CPP_JAR_NAME)
-#   # default location to find antlr Java binary
-#   set(ANTLR4CPP_JAR_NAME antlr4-4.5.4-SNAPSHOT.jar)
-# endif()
-#
-# if(NOT EXISTS "${ANTLR4CPP_JAR_LOCATION}")
-#   # download Java tool if not installed
-#   ExternalProject_ADD(
-#     #--External-project-name------
-#     antlrtool
-#     #--Core-directories-----------
-#     PREFIX             ${ANTLR4CPP_EXTERNAL_ROOT}
-#     #--Download step--------------
-#     DOWNLOAD_DIR       ${ANTLR4CPP_EXTERNAL_ROOT}
-#     DOWNLOAD_COMMAND   ""
-#     # URL              http://www.antlr.org/download/${ANTLR4CPP_JAR_NAME}
-#     # antlr4-4.5.4-SNAPSHOT.jar
-#     # GIT_TAG            v4.5.4
-#     TIMEOUT            10
-#     LOG_DOWNLOAD       ON
-#     #--Update step----------
-#     # UPDATE_COMMAND     ${GIT_EXECUTABLE} pull
-#     #--Patch step----------
-#     # PATCH_COMMAND sh -c "cp <SOURCE_DIR>/scripts/CMakeLists.txt <SOURCE_DIR>"
-#     #--Configure step-------------
-#     CMAKE_ARGS         ""
-#     CONFIGURE_COMMAND  ""
-#     LOG_CONFIGURE ON
-#     #--Build step-----------------
-#     BUILD_COMMAND      ""
-#     LOG_BUILD ON
-#     #--Install step---------------
-#     INSTALL_COMMAND    ""
-#     )
-#   # Verify Antlr Available
-#   if(NOT EXISTS "${ANTLR4CPP_JAR_LOCATION}")
-#     message(FATAL_ERROR "Unable to find ANTLR4CPP_JAR_LOCATION:${ANTLR4CPP_JAR_LOCATION} -> ${ANTLR4CPP_JAR_NAME} not in ${ANTLR4CPP_DIR} ")
-#   endif()
-# endif()
-
 # download runtime environment
 ExternalProject_ADD(
   #--External-project-name------
@@ -130,14 +86,15 @@ ExternalProject_ADD(
   #--Depend-on-antrl-tool-----------
   # DEPENDS antlrtool
   #--Core-directories-----------
-  PREFIX             ${ANTLR4CPP_EXTERNAL_ROOT}
+  PREFIX             ${ANTLR4CPP_LOCAL_ROOT}
   #--Download step--------------
-  GIT_REPOSITORY     ${ANTLR4CPP_EXTERNAL_REPO}
+  URL                 ${ANTLR4CPP_LOCAL_REPO}
+  # GIT_REPOSITORY     ${ANTLR4CPP_EXTERNAL_REPO}
   # GIT_TAG          ${ANTLR4CPP_EXTERNAL_TAG}
   TIMEOUT            10
   LOG_DOWNLOAD       ON
   #--Update step----------
-  UPDATE_COMMAND     ${GIT_EXECUTABLE} pull
+  # UPDATE_COMMAND     ${GIT_EXECUTABLE} pull
   #--Patch step----------
   # PATCH_COMMAND sh -c "cp <SOURCE_DIR>/scripts/CMakeLists.txt <SOURCE_DIR>"
   #--Configure step-------------
