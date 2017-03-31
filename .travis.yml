@@ -1,30 +1,35 @@
 language: cpp
 compiler:
 - gcc
-addons:
-  apt:
-    sources:
-    - george-edison55-precise-backports
-    packages:
-    - cmake
-    - cmake-data
 sudo: required
 before_install:
-- sudo add-apt-repository ppa:george-edison55/cmake-3.x --yes
 - sudo add-apt-repository ppa:ubuntu-toolchain-r/test -y
 - sudo apt-get update
 install:
-- sudo apt-get install cmake
+
+- DEPS_DIR="${TRAVIS_BUILD_DIR}/deps"
+- mkdir -p ${DEPS_DIR} && cd ${DEPS_DIR}
+- |
+  if [[ "${TRAVIS_OS_NAME}" == "linux" ]]; then
+    CMAKE_URL="https://cmake.org/files/v3.7/cmake-3.7.2-Linux-x86_64.tar.gz"
+    mkdir -p cmake && travis_retry wget --no-check-certificate --quiet -O - ${CMAKE_URL} | tar --strip-components=1 -xz -C cmake
+    export PATH=${DEPS_DIR}/cmake/bin:${PATH}
+  else
+    brew upgrade cmake || brew install cmake
+  fi
+- cmake --version
 - if [ "$CXX" = "g++" ]; then sudo apt-get install -qq g++-6; fi
 - if [ "$CXX" = "g++" ]; then export CXX="g++-6" CC="gcc-6"; fi
 - sudo apt-get install -y uuid-dev
+
 script:
-- mkdir bin
-- cd bin
+- cd ${TRAVIS_BUILD_DIR}
+- mkdir build
+- cd build
 - cmake -G "Unix Makefiles" ..
-- make -j
-- cat /home/travis/build/blorente/antlr-4.7-cpp-cmake-base/bin/locals/antlr4cpp/src/antlr4cpp-stamp/antlr4cpp-configure-err.log
-- cat /home/travis/build/blorente/antlr-4.7-cpp-cmake-base/bin/locals/antlr4cpp/src/antlr4cpp-stamp/antlr4cpp-configure-out.log
+- make -j2 VERBOSE=1
+- cat /home/travis/build/blorente/antlr-4.7-cpp-cmake-base/build/locals/antlr4cpp/src/antlr4cpp-stamp/antlr4cpp-configure-err.log
+- cat /home/travis/build/blorente/antlr-4.7-cpp-cmake-base/build/locals/antlr4cpp/src/antlr4cpp-stamp/antlr4cpp-configure-out.log
 - ./test_antlr
 before_deploy:
 - pwd && ls
